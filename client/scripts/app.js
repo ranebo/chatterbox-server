@@ -62,7 +62,7 @@ var app = {
       data: { order: '-createdAt'},
       success: function(data) {
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        if (!data.results || !data.results.length) { app.stopSpinner(); return; }
 
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
@@ -112,7 +112,7 @@ var app = {
   },
 
   populateRooms: function(results) {
-    app.$roomSelect.html('<option value="__newRoom">New room...</option><option value="" selected>Lobby</option></select>');
+    app.$roomSelect.html('<option value="__newRoom">New room...</option><option value="" selected>lobby</option></select>');
 
     if (results) {
       var rooms = {};

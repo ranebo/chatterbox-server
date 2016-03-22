@@ -59,9 +59,10 @@ var requestHandler = function(request, response) {
     results: results
   };
 
-  var UrlsAllowed = ['/classes/messages', '/send', '/classes/messages/?order=-createdAt', '/classes/room'];
+  var UrlsAllowed = ['/classes/messages/', '/send', '/classes/messages/?order=-createdAt', '/classes/room', '/messages'];
 
   if (UrlsAllowed.indexOf(request.url) < 0) {
+    console.log('Error, 404 for url: ' + request.url);
     response.writeHead(404, headers);
     response.end();
   } else if (request.method === "OPTIONS") {
