@@ -11,6 +11,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var results = [];
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -30,16 +31,16 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   // respond according to request method (GET/POST) and URL
 
-  var responses = {
-    GET: 200,
-    POST: 200,
-    PUT: 400,
-    DELETE: 400,
-    OPTIONS: 200,
-  };
+  // var responses = {
+  //   GET: 200,
+  //   POST: 200,
+  //   PUT: 400,
+  //   DELETE: 400,
+  //   OPTIONS: 200,
+  // };
 
-  // The outgoing status.
-  var statusCode = responses[request.method];
+  // // The outgoing status.
+  // var statusCode = responses[request.method];
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -55,31 +56,30 @@ var requestHandler = function(request, response) {
     headers: headers,
     method: request.method,
     url: request.url,
-    body: 'body',
-    results: []
+    results: results
   };
 
-  var body = [];
+  var UrlsAllowed = ['/classes/messages', '/send', '/classes/messages/?order=-createdAt'];
 
-  if (request.method === "OPTIONS") {
+  if (UrlsAllowed.indexOf(request.url) < 0) {
+    response.writeHead(404, headers);
+  } else if (request.method === "OPTIONS") {
+    console.log('request url: ' + request.url);
     response.writeHead(200, headers);
-  }
-
-  if (request.method === "GET") {
+  } else if (request.method === "GET") {
+    console.log('request url: ' + request.url);
     response.writeHead(200, headers);
     response.write(JSON.stringify(responsebody));
-  }
-
-  if (request.method === 'POST') {
-    request.on('data', function(chunk) {
-      console.log('POST data: ' + chunk);
-      results.push(chunk);
-    });
-
-    // console.log("----------------------", request)
-    // console.log(name + ':', request.headers[name]);
+  } else if (request.method === 'POST') {
+    console.log('request url: ' + request.url);
     response.writeHead(201, headers);
-    response.write(JSON.stringify(responsebody.results));
+    var dataString = '';    
+    request.on('data', function(chunk) {
+      dataString += chunk;
+    }).on('end', function(data) {
+      results.push(JSON.parse(dataString));
+      response.end(JSON.stringify(responsebody.results));
+    });
   }
 
   // .writeHead() writes to the request line and headers of the response,
