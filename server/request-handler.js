@@ -1,5 +1,4 @@
 /*************************************************************
-
 You should implement your request handler function in this file.
 
 requestHandler is already getting passed to http.createServer()
@@ -11,6 +10,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var _ = require('../node_modules/underscore');
 var results = [];
 
 var requestHandler = function(request, response) {
@@ -59,24 +59,28 @@ var requestHandler = function(request, response) {
     results: results
   };
 
-  var UrlsAllowed = ['/classes/messages', '/send', '/classes/messages/?order=-createdAt'];
+  var UrlsAllowed = ['/classes/messages', '/send', '/classes/messages/?order=-createdAt', '/classes/room'];
 
   if (UrlsAllowed.indexOf(request.url) < 0) {
     response.writeHead(404, headers);
+    response.end();
   } else if (request.method === "OPTIONS") {
     console.log('request url: ' + request.url);
     response.writeHead(200, headers);
+    response.end();
   } else if (request.method === "GET") {
     console.log('request url: ' + request.url);
-    response.writeHead(200, headers);
-    response.write(JSON.stringify(responsebody));
+    response.writeHead(200, headers); 
+    response.end(JSON.stringify(responsebody)); 
+
   } else if (request.method === 'POST') {
     console.log('request url: ' + request.url);
     response.writeHead(201, headers);
     var dataString = '';    
     request.on('data', function(chunk) {
       dataString += chunk;
-    }).on('end', function(data) {
+    });
+    request.on('end', function(data) {
       results.push(JSON.parse(dataString));
       response.end(JSON.stringify(responsebody.results));
     });
@@ -94,8 +98,6 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
 
-
-  response.end();
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
